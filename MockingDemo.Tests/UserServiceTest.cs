@@ -68,4 +68,18 @@ public class UserServiceTest
         Assert.Throws<InvalidOperationException>(() => service.CountActiveUsers());
            
     }
+
+    [Fact]
+    public void CountActiveUser_DoesNotCallOtherRepositoryMethods()
+    {
+        var repoMock = new Mock<IUserRepository>();
+        repoMock.Setup(r => r.GetUsers()).Returns(new List<User>());
+
+        var service = new UserService(repoMock.Object);
+
+        service.CountActiveUsers();
+
+        repoMock.Verify(r => r.GetUsers(), Times.Once);
+        repoMock.VerifyNoOtherCalls();
+    }
 }
